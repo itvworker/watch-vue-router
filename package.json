@@ -1,0 +1,19 @@
+{
+    "name": "watch-vue-router",
+    "description": "watch-vue-router",
+    "version": "1.0.0",
+    "homepage": "https://github.com/itvworker/watch-vue-router",
+    "author": "langjue <xieke76@qq.com>",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/itvworker/watch-vue-router"
+    },
+    "main": "index.js",
+    "keywords": [
+      "units",
+      "rem",
+      "setting",
+      "postcss-plugin"
+    ],
+    "license": "itvworker"
+  }
