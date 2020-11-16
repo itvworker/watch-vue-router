@@ -1,9 +1,84 @@
 import Router from 'vue-router'
 //事件列表
 
-export default function (paramname){
-    Router.events = [];
+let router = []
+let nowIndex = 0;
+let urlname = '';
 
+
+function getIndex(value) {
+    let index = null;
+    for(let i = 0, l = router.length; i < l; i++) {
+        console.log(router[i]);
+        if(router[i].query[urlname] == value) {
+            index = i;
+        }
+    }
+    return index;
+}
+
+
+
+function pushRouter(temp, value) {
+    let index = null
+    if(temp){
+        index = getIndex(temp)
+    }else{
+        router = router.splice(0, 1)
+    }
+    
+    if(index !== null){
+       router = router.splice(0, index+1)
+    }
+    
+    let obj= {
+        name:  value.name,
+        query: value.query,
+        meta: value.meta,
+        path: value.path,
+        fullPath: value.fullPath
+    }
+    router.push(obj)
+    sessionStorage.setItem(urlname, JSON.stringify(router))
+}
+
+
+function replaceRouter(temp, value) {
+    
+    if(router.length<=1) {
+        router[0] = {
+            name:  value.name,
+            query: value.query,
+            meta: value.meta,
+            path: value.path,
+            fullPath: value.fullPath
+        }
+        return
+    }
+
+    let index = getIndex(temp)
+   router = router.splice(0, index)
+    let obj= {
+        name:  value.name,
+        query: value.query,
+        meta: value.meta,
+        path: value.path,
+        fullPath: value.fullPath
+    }
+    router.push(obj)
+    sessionStorage.setItem(urlname, JSON.stringify(router))
+}
+
+
+
+
+export default function (paramname){
+   urlname = paramname
+   let arr = sessionStorage.getItem(urlname) 
+   if(arr) {
+       router = JSON.parse(arr);
+   }
+    Router.events = [];
     //监听事件
     Router.$on = function(event, obj) {
         Router.events.push({
@@ -26,6 +101,7 @@ export default function (paramname){
     //监听$router.push方法
     let push = Router.prototype.push;  
     Router.prototype.push =  function(location, onComplete, onAbort) {
+        
         if(typeof location==='string') {
             location = {
                 path: location,
@@ -36,7 +112,30 @@ export default function (paramname){
             
         }
         location.query[paramname] = new Date().getTime()
-        push.call(this, location, onComplete, onAbort)
+
+        
+        let up = this.app.$route;
+        if(router.length<=0) {
+            let obj= {
+                name: up.name,
+                query: up.query,
+                meta: up.meta,
+                path: up.path,
+                fullPath: up.fullPath
+            }
+            router.push(obj);
+        }
+        
+        function finish(value) {
+            pushRouter(up.query[paramname], value)
+            if(onComplete) {
+                onComplete(value)
+            }
+        }
+
+        
+        push.call(this, location, finish, onAbort)
+
         Router.events.forEach(element => {
             let arr = element.name.split(' ');
             if(arr.indexOf('push')>=0) {
@@ -69,7 +168,27 @@ export default function (paramname){
             location.query = location.query || {};
         }
         location.query[paramname] = new Date().getTime()
-        replace.call(this, location, onComplete, onAbort)
+
+        let up = this.app.$route;
+        if(router.length<=0) {
+            let obj= {
+                name: up.name,
+                query: up.query,
+                meta: up.meta,
+                path: up.path,
+                fullPath: up.fullPath
+            }
+            router.push(obj);
+        }
+
+        function finish(value) {
+            replaceRouter(up.query[paramname], value);
+            if(onComplete) {
+                onComplete(value)
+            }
+        }
+
+        replace.call(this, location, finish, onAbort)
         Router.events.forEach(element => {
             let arr = element.name.split(' ');
             if(arr.indexOf('replace')>=0) {
@@ -102,8 +221,36 @@ export default function (paramname){
         });
     }
 
+    /**
+     * @description 后退指定路由
+     * @param {Array|String} value 路由名称
+     */
+    Router.prototype.backRouteName = function(value){
+        let isarr = Array.isArray(value)
+        let temp = this.app.$route.query[urlname];
+        let index = getIndex(temp); 
+        let goIndex = 0; 
+        for(let i = index-1; i>=0; i--) {
+            goIndex += -1;
+            let isBreak = false;
+            if(isarr) {
+                value.forEach((item)=>{
+                    if(item == router[i].name) {
+                        isBreak = true;
+                    }
+                })
+            }else{
+                if(router[i].name == value) {
+                    isBreak = true;
+                }
+            }
+            if(isBreak) {
+                break;
+            }
+        }
+        if(goIndex!==0) {
+            this.app.$router.go(goIndex)
+        }
+    }
 }
-
-
-
 
