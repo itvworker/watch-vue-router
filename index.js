@@ -9,7 +9,6 @@ let urlname = '';
 function getIndex(value) {
     let index = null;
     for(let i = 0, l = router.length; i < l; i++) {
-        console.log(router[i]);
         if(router[i].query[urlname] == value) {
             index = i;
         }
@@ -223,7 +222,7 @@ export default function (paramname){
 
     /**
      * @description 后退指定路由
-     * @param {Array|String} value 路由名称
+     * @param {Array|String} value 路由名称  home:-1
      */
     Router.prototype.backRouteName = function(value){
         let isarr = Array.isArray(value)
@@ -235,13 +234,39 @@ export default function (paramname){
             let isBreak = false;
             if(isarr) {
                 value.forEach((item)=>{
-                    if(item == router[i].name) {
-                        isBreak = true;
+                    //拆分参数
+                    let names = item.split(':')
+                    //判断是否找到相路由
+                    if( names[0] == router[i].name) {
+                        isBreak = true; //跳出for
+                        if(names.length>=2) { //是否有参数
+                            //是否有第二个参数
+                            if(names[2] && names[2] === 'same') {
+                                    if(router[i+parseInt(names[1])].name === names[0]) {
+                                        goIndex+= parseInt(names[1])
+                                    }
+                            }else{
+                                goIndex+= parseInt(names[1])
+                            }   
+                        }
+                        
                     }
                 })
             }else{
-                if(router[i].name == value) {
+                let names = value.split(':')
+                if(router[i].name == names[0]) {
                     isBreak = true;
+                    if(names.length>=2) { //是否有参数
+                        //是否有第二个参数
+                        if(names[2] && names[2] === 'same') {
+                           
+                                if(router[i+parseInt(names[1])].name === names[0]) {
+                                    goIndex+= parseInt(names[1])
+                                }
+                        }else{
+                            goIndex+= parseInt(names[1])
+                        }   
+                    }
                 }
             }
             if(isBreak) {
@@ -253,4 +278,7 @@ export default function (paramname){
         }
     }
 }
+
+
+
 

@@ -1,5 +1,5 @@
 # watch-vue-router
-watch-vue-router,是一个扩展vue-router方法的插件，可以在头部添中一个时间戳的参数，也可以监听vue-router路由是否调用了go,push,replace, forward, back方法
+watch-vue-router,是一个扩展vue-router方法的插件，可以在头部添中一个时间戳的参数，也可以监听vue-router路由是否调用了go,push,replace, forward, back方法，并且拓展示了一些方法
 
 ### contact
 email: xieke76@qq.com
@@ -7,10 +7,9 @@ email: xieke76@qq.com
 
 ## Usage
 
-```javascrit
+```javascript
 import watch from 'watch-vue-router'; //在入口处引入，要在vue-router之前引入
 watch('urltime') //参数为时间参数的参数名字
-
 
 ```
 
@@ -49,7 +48,8 @@ export defualt {
         //删除监听
         Router.$on('push go back forward', this.watchrouter)
 
-
+        // 'attendanceRecord:-1:same'
+		this.$router.backRouteName(['punchSign','attendanceRecord:-1:same', 'attendanceCalendar', 'abnormalTips:-1:same',"Flow"])
     }
 }
 </script>
