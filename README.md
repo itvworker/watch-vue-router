@@ -48,7 +48,7 @@ export defualt {
         //删除监听
         Router.$on('push go back forward', this.watchrouter)
 
-        // 'attendanceRecord:-1:same'
+        // 'name:-1:same' name为路由名字， -1为找到指路再跳到-1，可以传+1, same为条件，就是指如果路由名相同就后退到-1
 		this.$router.backRouteName(['punchSign','attendanceRecord:-1:same', 'attendanceCalendar', 'abnormalTips:-1:same',"Flow"])
     }
 }
