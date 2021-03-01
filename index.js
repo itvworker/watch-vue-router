@@ -56,7 +56,6 @@ function replaceRouter(temp, value) {
     }
 
     let index = getIndex(temp)
-   router = router.splice(0, index)
     let obj= {
         name:  value.name,
         query: value.query,
@@ -64,7 +63,8 @@ function replaceRouter(temp, value) {
         path: value.path,
         fullPath: value.fullPath
     }
-    router.push(obj)
+    
+    retour[index] = obj;
     sessionStorage.setItem(urlname, JSON.stringify(router))
 }
 
@@ -166,8 +166,14 @@ export default function (paramname){
         }else{
             location.query = location.query || {};
         }
-        location.query[paramname] = new Date().getTime()
-
+        let temp = this.app.$route.query[urlname];
+        let index = getIndex(temp) || 0;
+        try {
+            location.query[paramname] = router[index].query[paramname] || new Date().getTime()
+        } catch (error) {
+            location.query[paramname] = new Date().getTime();
+        }
+        
         let up = this.app.$route;
         if(router.length<=0) {
             let obj= {
@@ -191,19 +197,19 @@ export default function (paramname){
         Router.events.forEach(element => {
             let arr = element.name.split(' ');
             if(arr.indexOf('replace')>=0) {
-                element.fun(n, 'replace')
+                element.fun(location, 'replace')
             }    
         });
     }
 
     //监听$router.back方法
     let back = Router.prototype.back;  
-    Router.prototype.back =  function() {
+    Router.prototype.back =  function(n) {
         back.call(this)
         Router.events.forEach(element => {
             let arr = element.name.split(' ');
             if(arr.indexOf('back')>=0) {
-                element.fun('back', 'back')
+                element.fun(n, 'back')
             }    
         });
     }
@@ -215,7 +221,7 @@ export default function (paramname){
         Router.events.forEach(element => {
             let arr = element.name.split(' ');
             if(arr.indexOf('forward')>=0) {
-                element.fun('forwar', 'forward')
+                element.fun('forward', 'forward')
             }    
         });
     }
